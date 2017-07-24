@@ -1,0 +1,178 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Master</title>
+	<script src="https://cdn.netpie.io/microgear.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.6/p5.js"></script>
+</head>
+<body>
+	<p id="NPtot"></p>
+	<p style="color: red" id="fromnptot"></p>
+	
+	
+	<script>
+		const APPID     = "P5";
+		const APPKEY    = "yAfAOM8NS4eYM43";
+		const APPSECRET = "JesdHE3eJCOERAHfLHg1dUn20";
+
+		var s
+		var scl = 20
+		var item
+		var s = 0, f = 0;
+
+		var a = ' ';
+
+		var enemLocation=[]
+		var xxx=0,yyy=0,score=0;
+		var showtot=0;
+		var eatx=240,eaty=240
+
+		var eatItem = 0;
+		var listid = [0]
+		var eatItems = 0;
+		var obj = [];
+		var snack =  [];
+		var idEneme;
+		var idsnack = [];
+		var datasnack = [];
+		var state = 1;
+		var stateR ;
+		var itemX = 0,itemY = 0;
+		var stackitem = [];
+
+		document.getElementById('NPtot').innerHTML=showtot
+
+
+		var member = [];
+		var myID = Math.floor(Math.random()*100000).toString();
+		var microgear = Microgear.create({
+			key: APPKEY,
+			secret: APPSECRET,
+			alias : myID
+		});
+		microgear.on('connected', function() {
+			
+			microgear.subscribe('/location/+');
+
+			console.log('myID is '+myID);
+			console.log('Connected...');
+
+		});
+		microgear.on('disconnected', function() {
+			//alert('hey');
+		});
+		microgear.on('present', function(m) {
+		// console.log("m"+m.alias);
+		if (m.type=='online' && m.alias != myID) {
+			if (member.indexOf(m.alias)==-1) member.push(m.alias);
+		}
+		
+	});
+		microgear.on('absent', function(m) {
+			if (m.type=='offline') delete member.splice(member.indexOf(m.alias),1);
+		});
+
+
+		microgear.on('message',function(topic,msg) {
+			console.log(""+msg);
+			// if (topic == '/'+APPID+'/location/'){
+			// 	if(msg=='reset')
+			// 		mockItem.randomlocation()
+			// 	else{
+			// 		var enemLocation=msg.split(',')
+			// 		xxx=parseInt(enemLocation[0])
+			// 		yyy=parseInt(enemLocation[1])
+			// 	}
+			// }
+			var enemLocation = msg.split(',');
+			id = enemLocation[0]
+			xxx=parseInt(enemLocation[1])
+			yyy=parseInt(enemLocation[2])
+			eatItem = parseInt(enemLocation[3])
+
+			if((listid.indexOf(id)) == -1){
+						
+				listid.push(id)
+				datasnack.push({sid:id,data:{sX:xxx,sY:yyy,sScore:score,sEatItem:eatItem}})
+				// console.log('state='+datasnack[0].data.sState)
+			}else{
+				// console.log('s'+idsnack)
+				// var indexItem = datasnack.findIndex(x => x.data.sState==1)
+				// console.log('s'+datasnack[indexItem].data.sItemX);
+				var index = datasnack.findIndex(x => x.sid==id)
+				datasnack[index] = {sid:id,data:{sX:xxx,sY:yyy,sScore:score,sEatItem:eatItem}}
+				eatItems = 1;
+				// console.log(enemLocation);
+			}	
+
+
+		});
+
+
+
+		microgear.connect(APPID);
+
+		function setup () {
+			createCanvas(500, 500)
+			mockItem=new itemfunc()
+			frameRate(5)
+			
+		}
+
+
+		function draw () {
+			background(51)
+			mockItem.show()
+			document.getElementById('NPtot').innerHTML=showtot
+			document.getElementById('fromnptot').innerHTML=score
+			if(eatItems == 1){
+				for(var i = 0; i < datasnack.length; i++){
+					if(datasnack[i].data.sEatItem == 1){
+						mockItem.randomlocation()
+						
+					}
+				}
+				// eatItem = 0;
+			}
+
+			microgear.publish('/location/admin',mockItem.x+','+mockItem.y);
+
+
+	}
+
+
+	function itemfunc () {
+		this.x = 240
+		this.y = 240
+
+		this.update = function () {
+			this.x = eatx
+			this.y = eaty
+		}
+
+		this.show = function () {
+			fill(51, 204, 51)
+			rect(this.x, this.y, scl, scl)
+
+		}
+		this.randomlocation=function(){
+
+			this.x=floor(random(24))*20
+
+			this.y=floor(random(24))*20
+			console.log("///////"+this.x+','+this.y+'///////////////')
+
+		}
+
+
+
+	}
+	// setInterval(function(){
+
+	// },200);
+
+
+</script>
+<button onClick="mockItem.randomlocation()" >reset</button>
+</body>
+</html>
