@@ -7,13 +7,13 @@
 </head>
 <body>
 	<p id="NPtot"></p>
-	<!-- <p style="color: red" id="fromnptot"></p> -->
+	<p style="color: red" id="fromnptot"></p>
 	
 	
 	<script>
-		const APPID     = "P5toNetpie";
-		const APPKEY    = "3AydXTokmaJo7mo";
-		const APPSECRET = "Dd1bKirT3Z8W6kSiHifQ9oK6X";
+		const APPID     = "KPGameDemo";
+		const APPKEY    = "BNx9cFtQN903Z99";
+		const APPSECRET = "CdjjZfeLeH8pjxvH7PLy6kMGM";
 
 		var s
 		var scl = 20
@@ -21,27 +21,9 @@
 		var s = 0, f = 0;
 
 		var a = ' ';
-
 		var enemLocation=[]
-		var xxx=0,yyy=0,score=0;
+		var xxx=0,yyy=0;
 		var showtot=0;
-		var id ;
-		var listid = [0]
-		var enem = 0;
-		var obj = [];
-		var snack =  [];
-		var idEneme;
-		var idsnack = [];
-		var datasnack = [];
-		var state = 1;
-		var stateR ;
-		var itemX = 0,itemY = 0;
-		var stackitem = [];
-		var totalTail = 0;
-		var enemTail = [];
-		var colorEnem = [];
-		var counter = 0;
-		var showsneck = 0;
 		document.getElementById('NPtot').innerHTML=showtot
 
 
@@ -53,8 +35,8 @@
 			alias : myID
 		});
 		microgear.on('connected', function() {
-			
-			microgear.subscribe('/location/+');
+			microgear.subscribe('/draw/+');
+			microgear.subscribe('/location/player');
 			console.log('myID is '+myID);
 			console.log('Connected...');
 
@@ -68,94 +50,59 @@
 			if (member.indexOf(m.alias)==-1) member.push(m.alias);
 		}
 		
-		});
+	});
 		microgear.on('absent', function(m) {
 			if (m.type=='offline') delete member.splice(member.indexOf(m.alias),1);
 		});
 
+		// microgear.on('message',function(topic,msg) {
+		// 	//console.log(""+topic);
+		// 	if (topic == '/'+APPID+'/draw/'+myID){
+		// 		console.log("kopai "+msg)
+		// 		var dlist = msg.split(',');
+		// 		console.log(dlist);
+		// 		document.getElementById('fromnptot').innerHTML=dlist
+		// 		show(dlist[0],dlist[1]);
+		// 	}
+
+		// });
 
 		microgear.on('message',function(topic,msg) {
-			// console.log(""+topic);
-			if (topic == '/'+APPID+'/location/'+myID) return;
+			console.log(""+topic);
+			if (topic == '/'+APPID+'/location/player'){
 
 				var enemLocation = msg.split(',');
-				id = enemLocation[0]
-				xxx=parseInt(enemLocation[1])
-				yyy=parseInt(enemLocation[2])
-				score=enemLocation[3]
-				totalTail = parseInt(enemLocation[4])
-				// state = parseInt(enemLocation[4])
-				// itemX = enemLocation[5]
-				// itemY = enemLocation[6]
-				// obj = {a:id}
-				// consol.log(obj)
-				// console.log("tail"+totalTail)
-					
-				// if(member.length > 0){
-					if((listid.indexOf(id)) == -1){
-						
-						listid.push(id)
-						var color1 = Math.floor(Math.random()*256).toString();
-						var color2 = Math.floor(Math.random()*256).toString();
-						var color3 = Math.floor(Math.random()*256).toString();
-						datasnack.push({sid:id,data:{sX:xxx,sY:yyy,sScore:score,sTail:totalTail}})
-						colorEnem.push({sid:id,color:{R:color1,G:color2,B:color3}})
-
-						var myDiv = document.createElement("div");
-						myDiv.setAttribute("id", 'textBar' + counter++);
-						var myContent = document.createTextNode(id+" : "+score);
-						myDiv.appendChild(myContent);
-						document.body.appendChild(myDiv);
-						// console.log(datasnack)
-						// console.log('state='+datasnack[0].data.sState)
-						setup2();
-					}else{
-						// console.log('s'+idsnack)
-						var indexItem = datasnack.findIndex(x => x.data.sState==0)
-						// console.log('s'+indexItem)
-						var index = datasnack.findIndex(x => x.sid==id)
-						datasnack[index] = {sid:id,data:{sX:xxx,sY:yyy,sScore:score,sTail:totalTail}}
-						enem = 1;
-						// console.log(enemLocation);
-					}	
-						// console.log('else');
-				// }
+				xxx=parseInt(enemLocation[0])
+				yyy=parseInt(enemLocation[1])
+				console.log(enemLocation);
 				
-				// console.log(member);
-
+				
+			}
+			else if (topic == '/'+APPID+'/draw/'+myID){
+				// console.log("kopai "+msg)
+				
+				// console.log(dlist);
+				document.getElementById('fromnptot').innerHTML=msg
+				
+			}
 
 		});
-
+		//var data = "30,40"
+		//console.log("",a);
+		//microgear.publish('/draw/'+myID, s);
 
 
 		microgear.connect(APPID);
 
+
+
+
 		function setup () {
 			createCanvas(500, 500)
-			// e = new enemSnake()
-			// console.log('eUp'+Date.now());
 			s = new Snack()
+			e = new enemSnake()
 			frameRate(6)
 			itemLocation()
-		}
-
-		function setup2 () {
-			
-			// console.log("idEneme=",idEneme);
-			// for(var i = 0; i< listid.length ;i++)
-			e = new enemSnake()
-			idsnack.push(id)
-			snack.push(e);
-
-			// console.log(snack[]);
-			// console.log('eUp2'+e);
-			frameRate(6)
-		}
-		function draw2 () {
-			while(1){
-				e.update()
-				e.show()
-			}
 		}
 
 
@@ -163,199 +110,145 @@
 			background(51)
 			s.update()
 			s.show()
-
-			// if(member.length <= 0){
-			// 	console.log('First Member');
-			// // 	state = 1;
-			// // 	stackitem = {state :1}
-			// // 	fill(51, 204, 51)
-			// // 	rect(item.x, item.y, scl, scl)
-			// }
-			// else{
-			// 	state = 0;
-			// 	// var indexItem = datasnack.findIndex(x => x.sState==0)
-			// 	// console.log(indexItem)
-			// 	fill(51, 204, 51)
-			// 	rect(0,0, scl, scl)
-			// }
-
-			if(enem == 1){
-				for(var i = 0; i < datasnack.length; i++){
-					// console.log("tail"+datasnack[i].data.sTail);
-					document.getElementById('textBar'+i).innerHTML=datasnack[i].data.sScore
-					snack[i].update(datasnack[i].data.sX,datasnack[i].data.sY,datasnack[i].data.sTail);
-					snack[i].show(colorEnem[i].color)
-				}
-			}
-			document.getElementById('NPtot').innerHTML=showtot
-			// document.getElementById('fromnptot').innerHTML=score
-			// if( stackitem.state == 1 )
+			e.update()
+			e.show()
+			microgear.publish('/location/player',s.x+','+s.y);
 			if (s.eat(item)) {
 				itemLocation()
 				showtot++;
-				
-				//microgear.publish('/draw/'+myID, showtot);
-			}
-			microgear.publish('/location/'+myID,myID+','+s.x+','+s.y+','+showtot+','+s.total);
-
-			// console.log(""member);
-			// fill(51, 204, 51)
-			// console.log("item.x="+scl+"item.y"+scl+"scl1="+scl+"scl2"+scl);
-
-			var c = color('magenta');
-			fill(c);
-			noStroke();
-			rect(item.x, item.y, scl, scl)
-
-		}
-
-
-		function itemLocation () {
-			var cols = floor(width / scl)
-			var rows = floor(height / scl)
-
-			item = createVector(floor(random(cols)), floor(random(rows)))
-			item.mult(scl)
-		}
-
-		function keyPressed () {
-			if(keyCode === UP_ARROW) s.dir(0, -1);
-			else if(keyCode === DOWN_ARROW) s.dir(0, 1);
-			else if(keyCode === RIGHT_ARROW) s.dir(1, 0);
-			else if(keyCode === LEFT_ARROW) s.dir(-1, 0);
-		}
-
-		function Snack () {
-			this.x = 0
-			this.y = 0
-
-
-			this.Xspeed = 0
-			this.Yspeed = 0
-
-			this.tail = []
-			this.total = 0
-
-			this.update = function () {
-
-				if (this.total === this.tail.length) {
-					// console.log("total"+this.total)
-					for (var i = 0; i < this.tail.length - 1; i++) {
-						// if((this.x == this.tail[i].x) && (this.y == this.tail[i].y)){
-							// console.log('cross');
-						// }
-						this.tail[i] = this.tail[i + 1]
-
-						// // console.log("tail"+i+"="+this.tail[i])
-					}
-				}
-				this.tail[this.total - 1] = createVector(this.x, this.y)
-				// console.log(this.tail)
-
-				this.x = this.x + this.Xspeed * scl
-				this.y = this.y + this.Yspeed * scl
-
-				this.x = constrain(this.x, 0, width - scl)
-				this.y = constrain(this.y, 0, height - scl)
-				a = this.x;
-				// console.log("x="+x+"y="+y);
+				document.getElementById('NPtot').innerHTML=showtot
+				microgear.publish('/draw/'+myID, showtot);
 			}
 
-			this.show = function () {
-			fill(255)
-			for (var i = 0; i < this.tail.length; i++) {
-				 if((this.x == this.tail[i].x) && (this.y == this.tail[i].y)){
-							console.log('cross');
-							
-				}
-				rect(this.tail[i].x, this.tail[i].y , scl, scl)
-			}
-			fill(255)
-			// rect(s,f,scl,scl)
-			rect(this.x, this.y, scl, scl)
-
-		}
-
-		this.dir = function (x, y) {
-			this.Xspeed = x
-			this.Yspeed = y
-		}
-
-		this.eat = function (pos) {
-			var d = dist(this.x, this.y, pos.x, pos.y)
-			if (d < 1) {
-					this.total++
-					return true
-				}
-				else return false
-			}
-		}
-
-
-
-		// setInterval(function(){
-
-		// },200);
-
-
-
-		function enemSnake () {
-			this.x =  0
-			this.y =  0
-
-			this.status = true;
-			this.Xspeed = 0
-			this.Yspeed = 0
-
-			this.tails = []
-			this.total = 0
-
-			this.update = function (x,y,totalTail) {
-				if (totalTail === this.tails.length) {
-					for (var i = 0; i < this.tails.length - 1; i++) {
-						this.tails[i] = this.tails[i + 1]
-
-						// console.enemTail"+i+"="+enemTail[i])
-					}
-				}
-				this.x = x
-				
-				this.y = y
-				this.tails[totalTail - 1] = createVector(this.x, this.y)
-					// console.log("total"+enemTail[0].x)
-				// console.log(enemTail)
-
-
-				
-				// console.log("x="+x+"y="+y);
-			}
-
-			this.show = function (color) {
-			// fill(color.R,color.G,color.B)
-			fill(200)
-			// console.log(enemTail.length)
-			for (var i = 0; i < this.tails.length; i++) {
-				// console.log(enemTail[i].y)
-				rect(this.tails[i].x, this.tails[i].y , scl, scl)
-			}
-			// fill(color.R,color.G,color.B)
-			fill(200)
-			rect(this.x, this.y, scl, scl)
-
-		}
-
-		this.dir = function (x, y) {
-			this.Xspeed = x
-			this.Yspeed = y
-		}
+			fill(51, 204, 51)
+		// console.log("item.x="+scl+"item.y"+scl+"scl1="+scl+"scl2"+scl);
+		rect(item.x, item.y, scl, scl)
 
 	}
 
 
+	function itemLocation () {
+		var cols = floor(width / scl)
+		var rows = floor(height / scl)
 
-		// setInterval(function(){
+		item = createVector(floor(random(cols)), floor(random(rows)))
+		item.mult(scl)
+	}
 
-		// },200);
+	function keyPressed () {
+		if(keyCode === UP_ARROW) s.dir(0, -1);
+		else if(keyCode === DOWN_ARROW) s.dir(0, 1);
+		else if(keyCode === RIGHT_ARROW) s.dir(1, 0);
+		else if(keyCode === LEFT_ARROW) s.dir(-1, 0);
+	}
+
+	function Snack () {
+		this.x = 0
+		this.y = 0
+
+
+		this.Xspeed = 0
+		this.Yspeed = 0
+
+		this.tail = []
+		this.total = 0
+
+		this.update = function () {
+
+			if (this.total === this.tail.length) {
+				for (var i = 0; i < this.tail.length - 1; i++) {
+					this.tail[i] = this.tail[i + 1]
+				}
+			}
+			this.tail[this.total - 1] = createVector(this.x, this.y)
+
+			this.x = this.x + this.Xspeed * scl
+			this.y = this.y + this.Yspeed * scl
+
+			this.x = constrain(this.x, 0, width - scl)
+			this.y = constrain(this.y, 0, height - scl)
+			a = this.x;
+			// console.log("x="+x+"y="+y);
+		}
+
+		this.show = function () {
+			fill(255)
+			for (var i = 0; i < this.tail.length; i++) {
+			// console.log("tail : "+this.tail[i].x)
+			rect(this.tail[i].x, this.tail[i].y , scl, scl)
+		}
+		fill(255)
+		rect(s,f,scl,scl)
+		rect(this.x, this.y, scl, scl)
+
+	}
+
+this.dir = function (x, y) {
+	this.Xspeed = x
+	this.Yspeed = y
+}
+
+this.eat = function (pos) {
+	var d = dist(this.x, this.y, pos.x, pos.y)
+	if (d < 1) {
+			//this.total++
+			return true
+		}
+		else return false
+	}
+}
+
+
+
+	// setInterval(function(){
+
+	// },200);
+
+
+
+	function enemSnake () {
+		this.x =  20
+		this.y =  20
+
+
+		this.Xspeed = 0
+		this.Yspeed = 0
+
+		this.tail = []
+		this.total = 0
+
+		this.update = function () {
+
+			this.x = xxx+40
+			console.log(this.x);
+			this.y = yyy + 40
+			// console.log("x="+x+"y="+y);
+		}
+
+		this.show = function () {
+			fill(200)
+			for (var i = 0; i < this.tail.length; i++) {
+			// console.log("tail : "+this.tail[i].x)
+			rect(this.tail[i].x, this.tail[i].y , scl, scl)
+		}
+		fill(200)
+		rect(s,f,scl,scl)
+		rect(this.x, this.y, scl, scl)
+
+	}
+
+this.dir = function (x, y) {
+	this.Xspeed = x
+	this.Yspeed = y
+}
+
+}
+
+
+
+	// setInterval(function(){
+
+	// },200);
 
 
 </script>
